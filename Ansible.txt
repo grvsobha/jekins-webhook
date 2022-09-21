@@ -1,0 +1,151 @@
+Ansible:
+++++===
+1. Clinet only machine
+2.Agent less
+3.Python
+4.Playbooks
+5.Dafault port -22(ssh)
+
+What Happens in Background:
++++++++++++++++++++++
+1. Generate a python script
+2. Copy the script to respesctive servers(10 servers code has to be copied)
+3. Excute the script to respesctive servers
+4. Wait for the script to complete execution on all hosts(servers)
+
+Importanet To Note That:
++++++++++====
+1.Ansible runs each task in parallel across all hosts
+2.Anisble waits until all hosts have completed a task before moving to next node.
+3.Ansible runs the task the order that you specify them.
+4.To manage a server with ansible, the server needs to have ssh & pythin 2.5 or later installed 
+ or python 2.4  with the python simple json library installed.
+5. Ansible is an agent less configuration tool which works on ssh port (22)
+6. Pushbased - Unlike chef and puppet are push based. its simply execute the playbook from parent/ansibel 
+server to its clients.
+7.Ansible scale down: Which means you can define a single host to "n" number of hosts for configuring.
+
+*Idempotent
+++++++++++++
+Idempotent in simple; if its installed they wont do anything,if its not installed we need to install it.
+if any chnages are made then it will revert back. Hence these type of behaviour clled Idempotent.
+
+Ansible is written in yaml/yml
+
+Playbook Syntax:
+++++++++++++
+
+---
+- name: your playbook execution name
+  hosts: your server on which you want to execute the code
+  tasks:
+   - name: task1
+     module1:  your syntax
+   - name: task2
+     module2: your syntax
+
+...
+
+Installation Of Ansible:
+++++++++++++++++++
+3 servers
+1. Contoller
+2. Server1
+3. Server2
+adding local DNS
+
+vim /etc/hosts
+
+172.31.95.49   controller
+172.31.80.20  server1
+172.31.92.213  server2
+
+Installing:
+++++++++++++
+https://thecodecloud.in/ansible-installation-configuration-amazon-linux-ec2-instance-aws/
+
+Custom Configurations:
+vim /etc/ssh/sshd_config
+PasswodAuthenticaion: yes
+cd /etc/ansible/
+vim ansible.cfg
+
+ssh-copy-id -i ec2-user@172.31.87.58(slave prvip)
+
+
+
+Genaret the keys:
+++++++++++++++++++
+vim  mykey.pem
+Your Pem.key - cpoy and past here
+
+++++++++++++++++++++
+
+
+vim ansible.cfg
+[default]
+inventory = ./myansibleservers
+interpreter_python = /usr/bin/python
+private_key_file = ./mykey.pem
+
+[privilege_escalation]
+become=True
+become_methode=sudo
+become_user=root
+
+vim myansibleservers        #Groups
+[dev]
+server1
+[prod]
+serve2
+[pre-prod]
+server1
+server2
+
+Working With Ansible
++++++++++++++
+
+---
+- hosts: webserver
+  become: true
+  become_user: root
+  tasks:
+  - name: install tomcat
+    yum: name=tomcat state=present
+  - name: start tomcat
+    service: name=tomcat state=started
+  - name: deploy war file
+    get_url:
+     url=https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war
+     dest=/usr/share/tomcat/webapps
+    notify: restart tomcat
+  handlers:
+   - name: restart tomcat
+     service: name=tomcat state=restarted
+
+
+Playbook Execution or o/p:
++++++++++++++++++
+ansible-playbook main.yml -v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
